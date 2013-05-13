@@ -18,6 +18,11 @@ Use values from your [backpack-coordinator](https://github.com/Topface/backpack-
 Usage: backpack-replicator <zk_servers> </zk/root> <redis_servers> <redis_key>
 ```
 
+### Configuration
+
+Initial configuration is stored in zookeeper. When zookeeper data changes, backpack-replicator
+automatically reload and apply new configuration so there's no need for manual restarts.
+
 ### Authors
 
 * [Ian Babrou](https://github.com/bobrik)
