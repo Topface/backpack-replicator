@@ -10,12 +10,13 @@
     "zk-redis-queue": "~0.1.7",
     "async": "~0.2.8",
     "mess": "~0.1.1",
-    "simple_redis": "~0.1.0",
     "replicate-http": "~0.1.0",
     "zkjs": "~3.4.1",
     "redis": "~0.8.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+      "simple_redis": "~0.1.0"
+  },
   "scripts": {
     "test": "node test/test.js"
   },
