@@ -1,0 +1,71 @@
+#!/usr/bin/env node
+(function() {
+    var Replicator = require("../index"),
+        redis      = require("redis"),
+        Zk         = require("zkjs"),
+        Queue      = require("zk-redis-queue"),
+        args       = process.argv.slice(2),
+        redises, zk, queue, replicator;
+
+    if (args.length < 4) {
+        console.error("Usage: backpack-replicator <zk_servers> </zk/root> <redis_servers> <redis_key>");
+        process.exit(1);
+    }
+
+    redises = args[2].split(",").map(function(str) {
+        var parts = str.split(":");
+        return redis.createClient(parts[1], parts[0], {retry_max_delay: 1000});
+    });
+
+    queue = new Queue(redises, new Zk({hosts: args[0].split(","), root: args[1]}), args[3]);
+    queue.on("error", console.error.bind(console));
+    queue.on("ready", function() {
+        console.log("Queue is ready!");
+    });
+
+    zk = new Zk({hosts: args[0].split(","), root: args[1]});
+
+    function zkRestart() {
+        zk.start(function(error) {
+            if (error) {
+                setTimeout(zkRestart, 1000);
+                return;
+            }
+
+            (function requestMap() {
+                zk.get("/servers-map", function() {
+                    // update map when it changes
+                    requestMap();
+                }, function(error, map) {
+                    if (error) {
+                        if (error == zk.errors.NONODE) {
+                            throw new Error("Map node not found in zk!");
+                        } else {
+                            throw error;
+                        }
+                    }
+
+                    map = JSON.parse(map);
+
+                    if (!replicator) {
+                        replicator = new Replicator(queue, map);
+                        replicator.on("error", console.error.bind(console));
+                        replicator.on("ready", function() {
+                            console.log("Replicator is ready!");
+                        });
+
+                        replicator.start();
+                        console.log("Replicator started!");
+                    } else {
+                        replicator.setMap(map);
+                        console.log("Replicator map updated!");
+                    }
+                });
+            })();
+        });
+    }
+
+    zk.on("expired", zkRestart);
+
+    zkRestart();
+})();

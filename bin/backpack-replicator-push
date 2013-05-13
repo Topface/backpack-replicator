@@ -1,0 +1,61 @@
+#!/usr/bin/env node
+(function() {
+    var Replicator = require("../index"),
+        redis      = require("redis"),
+        Zk         = require("zkjs"),
+        Queue      = require("zk-redis-queue"),
+        args       = process.argv.slice(2),
+        redises, zk, queue, replicator;
+
+    if (args.length < 7) {
+        console.error("Usage: backpack-replicator <zk_servers> </zk/root> <redis_servers> <redis_key> <from> <to> </path>");
+        process.exit(1);
+    }
+
+    redises = args[2].split(",").map(function(str) {
+        var parts = str.split(":");
+        return redis.createClient(parts[1], parts[0], {retry_max_delay: 1000});
+    });
+
+    zk = new Zk({hosts: args[0].split(","), root: args[1], timeout: 2000});
+    zk.start(function(error) {
+        if (error) {
+            throw error;
+        }
+
+        console.log("Zookeeper session started, getting map..")
+
+        zk.get("/servers-map", function(error, map) {
+            if (error) {
+                if (error == zk.errors.NONODE) {
+                    throw new Error("Map node not found in zk!");
+                } else {
+                    throw error;
+                }
+            }
+
+            map = JSON.parse(map);
+
+            queue = new Queue(redises, zk, args[3]);
+            queue.on("error", console.error.bind(console));
+            queue.on("ready", function() {
+                console.log("Queue is ready!");
+            });
+
+            replicator = new Replicator(queue, map);
+            replicator.on("error", console.error.bind(console));
+            replicator.on("ready", function() {
+                console.log("Replicator is ready!");
+
+                replicator.push(args[4].split(","), args[5], args[6], function(error) {
+                    if (error) {
+                        throw error;
+                    }
+
+                    console.log("Pushed!");
+                    process.exit();
+                });
+            });
+        });
+    });
+})();
