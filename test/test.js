@@ -101,9 +101,8 @@
 
             console.log("All done!");
 
-            redisOne.quit();
-            redisTwo.quit();
-            zk.close();
+            // will close underlying connections
+            queue.close();
         }
     });
 })();

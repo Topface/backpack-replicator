@@ -15,7 +15,7 @@ npm backpack-replicator
 Use values from your [backpack-coordinator](https://github.com/Topface/backpack-coordinator).
 
 ```
-Usage: backpack-replicator <zk_servers> </zk/root> <redis_servers> <redis_key>
+Usage: backpack-replicator <zk_servers> </zk/root>
 ```
 
 ### Configuration

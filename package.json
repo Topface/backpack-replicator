@@ -7,7 +7,7 @@
     "test": "test"
   },
   "dependencies": {
-    "zk-redis-queue": "~0.1.5",
+    "zk-redis-queue": "~0.1.6",
     "async": "~0.2.8",
     "mess": "~0.1.1",
     "simple_redis": "~0.1.0",

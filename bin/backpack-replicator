@@ -5,23 +5,14 @@
         Zk         = require("zkjs"),
         Queue      = require("zk-redis-queue"),
         args       = process.argv.slice(2),
-        redises, zk, queue, replicator;
+        restarting = false,
+        restart    = false,
+        zk, queue, replicator, map;
 
-    if (args.length < 4) {
-        console.error("Usage: backpack-replicator <zk_servers> </zk/root> <redis_servers> <redis_key>");
+    if (args.length < 2) {
+        console.error("Usage: backpack-replicator <zk_servers> </zk/root>");
         process.exit(1);
     }
-
-    redises = args[2].split(",").map(function(str) {
-        var parts = str.split(":");
-        return redis.createClient(parts[1], parts[0], {retry_max_delay: 1000});
-    });
-
-    queue = new Queue(redises, new Zk({hosts: args[0].split(","), root: args[1]}), args[3]);
-    queue.on("error", console.error.bind(console));
-    queue.on("ready", function() {
-        console.log("Queue is ready!");
-    });
 
     zk = new Zk({hosts: args[0].split(","), root: args[1]});
 
@@ -31,6 +22,65 @@
                 setTimeout(zkRestart, 1000);
                 return;
             }
+
+            (function requestQueue() {
+                if (restarting) {
+                    restart = true;
+                    return;
+                }
+
+                restarting = true;
+                zk.get("/queue", function() {
+                    // update queue info when it changes
+                    requestQueue();
+                }, function(error, queueInfo) {
+                    queueInfo = JSON.parse(queueInfo);
+
+                    queue = (function makeQueue() {
+                        var redises, queue;
+
+                        redises = queueInfo.servers.map(function(config) {
+                            return redis.createClient(config.port, config.host, {retry_max_delay: 1000});
+                        });
+
+                        queue = new Queue(redises, new Zk({hosts: args[0].split(","), root: args[1]}), args[3]);
+                        queue.on("error", console.error.bind(console));
+                        queue.on("ready", function() {
+                            console.log("Queue #" + queue.id + " is ready!");
+                        });
+
+                        return queue;
+                    })();
+
+                    if (!replicator) {
+                        if (map) {
+                            startReplicator();
+                        }
+
+                        restarting = false;
+                    } else {
+                        console.log("Stopping replicator");
+                        replicator.once("stopped", function() {
+                            replicator.queue.close();
+
+                            replicator.setQueue(queue);
+                            replicator.start();
+                            console.log("Replicator restarted with new queue #" + queue.id);
+
+                            replicator.once("started", function() {
+                                restarting = false;
+
+                                if (restart) {
+                                    restart = false;
+                                    requestQueue();
+                                }
+                            });
+                        });
+
+                        replicator.stop();
+                    }
+                });
+            })();
 
             (function requestMap() {
                 zk.get("/servers-map", function() {
@@ -48,14 +98,9 @@
                     map = JSON.parse(map);
 
                     if (!replicator) {
-                        replicator = new Replicator(queue, map);
-                        replicator.on("error", console.error.bind(console));
-                        replicator.on("ready", function() {
-                            console.log("Replicator is ready!");
-                        });
-
-                        replicator.start();
-                        console.log("Replicator started!");
+                        if (queue) {
+                            startReplicator();
+                        }
                     } else {
                         replicator.setMap(map);
                         console.log("Replicator map updated!");
@@ -63,6 +108,16 @@
                 });
             })();
         });
+    }
+
+    function startReplicator() {
+        replicator = new Replicator(queue, map);
+        replicator.on("error", console.error.bind(console));
+        replicator.on("ready", console.log.bind(console, "Replicator is ready!"));
+        replicator.on("started", console.log.bind(console, "Replicator started!"));
+
+        replicator.start();
+        console.log("Replicator started!");
     }
 
     zk.on("expired", zkRestart);
