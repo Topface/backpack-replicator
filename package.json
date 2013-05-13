@@ -1,0 +1,35 @@
+{
+  "name": "backpack-replicator",
+  "version": "0.1.0",
+  "description": "Reliably replicate files between backpack instances.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "zk-redis-queue": "~0.1.5",
+    "async": "~0.2.8",
+    "mess": "~0.1.1",
+    "simple_redis": "~0.1.0",
+    "replicate-http": "~0.1.0",
+    "zkjs": "~3.4.1",
+    "redis": "~0.8.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Topface/backpack-replicator.git"
+  },
+  "keywords": [
+    "backpack",
+    "replication",
+    "replicate"
+  ],
+  "author": "Ian Babrou <ibobrik@gmail.com> (http://bobrik.name/)",
+  "license": "BSD",
+  "gitHead": "54b5f924578aa2be3386237130e89ec9476e9d86",
+  "readmeFilename": "README.md"
+}
