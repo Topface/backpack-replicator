@@ -19,6 +19,7 @@
     function zkRestart() {
         zk.start(function(error) {
             if (error) {
+                console.error(error);
                 setTimeout(zkRestart, 1000);
                 return;
             }
