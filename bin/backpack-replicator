@@ -44,7 +44,7 @@
                             return redis.createClient(config.port, config.host, {retry_max_delay: 1000});
                         });
 
-                        queue = new Queue(redises, new Zk({hosts: args[0].split(","), root: args[1]}), args[3]);
+                        queue = new Queue(redises, new Zk({hosts: args[0].split(","), root: args[1]}), queueInfo.key);
                         queue.on("error", console.error.bind(console));
                         queue.on("ready", function() {
                             console.log("Queue #" + queue.id + " is ready!");
@@ -87,7 +87,7 @@
                 zk.get("/servers-map", function() {
                     // update map when it changes
                     requestMap();
-                }, function(error, map) {
+                }, function(error, servers) {
                     if (error) {
                         if (error == zk.errors.NONODE) {
                             throw new Error("Map node not found in zk!");
@@ -96,7 +96,7 @@
                         }
                     }
 
-                    map = JSON.parse(map);
+                    map = JSON.parse(servers);
 
                     if (!replicator) {
                         if (queue) {
