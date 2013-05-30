@@ -15,8 +15,10 @@ npm backpack-replicator
 Use values from your [backpack-coordinator](https://github.com/Topface/backpack-coordinator).
 
 ```
-Usage: backpack-replicator <zk_servers> </zk/root>
+Usage: backpack-replicator <zk_servers> </zk/root> [concurrency]
 ```
+
+`concurrency` is the number of items that replicator will process in parallel.
 
 ### Configuration
 

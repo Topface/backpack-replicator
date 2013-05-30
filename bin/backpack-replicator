@@ -10,7 +10,7 @@
         zk, queue, replicator, map;
 
     if (args.length < 2) {
-        console.error("Usage: backpack-replicator <zk_servers> </zk/root>");
+        console.error("Usage: backpack-replicator <zk_servers> </zk/root> [concurrency]");
         process.exit(1);
     }
 
@@ -112,7 +112,7 @@
     }
 
     function startReplicator() {
-        replicator = new Replicator(queue, map);
+        replicator = new Replicator(queue, map, args[2]);
         replicator.on("error", console.error.bind(console));
         replicator.on("ready", console.log.bind(console, "Replicator is ready!"));
         replicator.on("started", console.log.bind(console, "Replicator started!"));
