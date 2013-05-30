@@ -18,7 +18,8 @@
       "simple_redis": "~0.1.0"
   },
   "scripts": {
-    "test": "node test/test.js"
+    "start": "node ./bin/backpack-replicator",
+    "test": "node ./test/test.js"
   },
   "repository": {
     "type": "git",
