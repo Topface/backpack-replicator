@@ -1,6 +1,6 @@
 {
   "name": "backpack-replicator",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Reliably replicate files between backpack instances.",
   "main": "index.js",
   "directories": {
@@ -12,7 +12,8 @@
     "mess": "~0.1.1",
     "replicate-http": "~0.1.0",
     "zkjs": "~3.4.1",
-    "redis": "~0.8.3"
+    "redis": "~0.8.3",
+    "nop": "~0.0.0"
   },
   "devDependencies": {
       "simple_redis": "~0.1.0"
