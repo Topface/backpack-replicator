@@ -1,13 +1,13 @@
 {
   "name": "backpack-replicator",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Reliably replicate files between backpack instances.",
   "main": "index.js",
   "directories": {
     "test": "test"
   },
   "dependencies": {
-    "zk-redis-queue": "~0.1.8",
+    "zk-redis-queue": "~0.1.9",
     "async": "~0.2.8",
     "mess": "~0.1.1",
     "replicate-http": "~0.1.0",
