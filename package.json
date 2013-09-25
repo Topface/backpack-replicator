@@ -1,6 +1,6 @@
 {
   "name": "backpack-replicator",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Reliably replicate files between backpack instances.",
   "main": "index.js",
   "directories": {
@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "zk-redis-queue": "~0.1.9",
-    "async": "~0.2.8",
+    "async": "~0.2.9",
     "mess": "~0.1.1",
     "replicate-http": "~0.1.0",
     "zkjs": "~3.4.1",
@@ -16,7 +16,11 @@
     "nop": "~0.0.0"
   },
   "devDependencies": {
-      "simple_redis": "~0.1.0"
+    "simple_redis": "~0.1.0"
+  },
+  "bin": {
+    "backpack-replicator": "./bin/backpack-replicator",
+    "backpack-replicator-push": "./bin/backpack-replicator-push"
   },
   "scripts": {
     "test": "node ./test/test.js"
@@ -31,7 +35,5 @@
     "replicate"
   ],
   "author": "Ian Babrou <ibobrik@gmail.com> (http://bobrik.name/)",
-  "license": "BSD",
-  "gitHead": "54b5f924578aa2be3386237130e89ec9476e9d86",
-  "readmeFilename": "README.md"
+  "license": "BSD"
 }
