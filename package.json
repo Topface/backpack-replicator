@@ -1,6 +1,6 @@
 {
   "name": "backpack-replicator",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "Reliably replicate files between backpack instances.",
   "main": "index.js",
   "directories": {
